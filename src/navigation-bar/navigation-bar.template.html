@@ -1,0 +1,82 @@
+<div>
+    <header>
+        <div class="container">
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed"
+                          data-toggle="collapse" aria-expanded="false" data-Target="#myNavbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a ui-sref="home"  ui-sref-active="active"class="navbar-brand nav-text" id="brand">
+                          <!-- <img src="img/logo.png" class="img-responsive logo" alt="logo image"> -->
+                          Corporate Dashboard
+                        </a>
+                    </div>
+<!--                     <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a ui-sref="home" ui-sref-active="active" class="nav-text">
+                                  Home
+                                </a>
+                            </li>
+                            <li class="dropdown">
+                                <a ui-sref="dashboard" ui-sref-active="active">
+                                  Dashboard
+                                </a>
+                            </li>
+                            <li class="dropdown">
+                                <a ui-sref="projects" ui-sref-active="active">
+                                  Projects
+                                </a>
+                            </li>
+                            <li class="dropdown">
+                                <a ui-sref="about" ui-sref-active="active">
+                                  About
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a id="signedInUserLink" ng-if="!$ctrl.auth.isAuth()">
+                                    <span id="loggedInUser" class="label label-info">{{$ctrl.auth.getSignedInUser()}}</span>
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a ui-sref="signUp" ui-sref-active="active" ng-if="$ctrl.auth.isAuth()">
+                                    <span id="signUp" class="glyphicon glyphicon-user"> SignUp</span>
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a ui-sref="signIn" ui-sref-active="active" ng-if="$ctrl.auth.isAuth()">
+                                    <span id="signIn" class="glyphicon glyphicon-log-in"> SignIn</span>
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a ng-click="$ctrl.auth.signOut()" ng-if="!$ctrl.auth.isAuth()">
+                                    <span id="signOut" class="glyphicon glyphicon-log-out"> SignOut</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div> -->
+                </div>
+            </nav>
+        </div>
+    </header>
+    <paper-header-panel mode="seamed" class="container main">
+        
+    </paper-header-panel>
+    <div class="container-flex main" ui-view>
+        <!-- <home></home> -->
+        <!-- <div ng-view></div> -->
+    </div>
+    
+    <footer class="navBarBottom"></footer>  
+</div>
+

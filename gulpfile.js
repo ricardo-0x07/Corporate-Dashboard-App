@@ -28,6 +28,14 @@ gulp.task('clean', function() {
 
 gulp.task('copy', function() {
   return mergeStream(
+    gulp.src('src/core/google-chart-projecttrends/*.html').pipe(gulp.dest('./dist/core/google-chart-projecttrends/')),
+    gulp.src('src/core/google-chart-issuestrend/*.html').pipe(gulp.dest('./dist/core/google-chart-issuestrend/')),
+    gulp.src('src/dashboard-geospacial/*.html').pipe(gulp.dest('./dist/dashboard-geospacial/')),
+    gulp.src('src/dashboard-keymetrics/*.html').pipe(gulp.dest('./dist/dashboard-keymetrics/')),
+    gulp.src('src/dashboard-dataview/*.html').pipe(gulp.dest('./dist/dashboard-dataview/')),
+    gulp.src('src/dashboard/*.html').pipe(gulp.dest('./dist/dashboard/')),
+    gulp.src('src/core/google-map/*.html').pipe(gulp.dest('./dist/core/google-map/')),
+    gulp.src('src/navigation-bar/*.html').pipe(gulp.dest('./dist/navigation-bar/')),
     gulp.src('src/sw/sw.js').pipe(gulp.dest('dist/')),
     gulp.src('src/*.html').pipe(gulp.dest('dist/')),
     gulp.src('src/*.xml').pipe(gulp.dest('dist/')),
@@ -73,7 +81,7 @@ gulp.task('watch', ['browserSync'], function() {
   gulp.watch('src/sass/**/*.scss', ['styles']);
   gulp.watch('src/js/**/*.js', ['lint']);
   gulp.watch('src/sw/sw.js', ['sw']);
-  gulp.watch('src/*.html', ['copy-html']);
+  gulp.watch('src/**/*.html', ['copy-html']);
   // gulp.watch('src/jasmine/spec/spec.js', ['copy-spec']);
   gulp.watch('dist/index.html').on('change', browserSync.reload);
 
@@ -94,11 +102,19 @@ gulp.task('watch', ['browserSync'], function() {
 });
 
 gulp.task('sw', function() {
-    gulp.src('src/sw/sw.js').pipe(gulp.dest('dist/'))
+    gulp.src('src/sw/sw.js').pipe(gulp.dest('dist/'));
 });
 
 gulp.task('copy-html', function() {
-  gulp.src('src/*.html').pipe(gulp.dest('./dist'));
+    gulp.src('src/core/google-chart-projecttrends/*.html').pipe(gulp.dest('./dist/core/google-chart-projecttrends/'));
+    gulp.src('src/core/google-chart-issuestrend/*.html').pipe(gulp.dest('./dist/core/google-chart-issuestrend/'));
+    gulp.src('src/dashboard-geospacial/*.html').pipe(gulp.dest('./dist/dashboard-geospacial/'));
+    gulp.src('src/dashboard-keymetrics/*.html').pipe(gulp.dest('./dist/dashboard-keymetrics/'));
+    gulp.src('src/dashboard-dataview/*.html').pipe(gulp.dest('./dist/dashboard-dataview/'));
+    gulp.src('src/dashboard/*.html').pipe(gulp.dest('./dist/dashboard/'));
+    gulp.src('src/core/google-map/*.html').pipe(gulp.dest('./dist/core/google-map/'));
+    gulp.src('src/navigation-bar/*.html').pipe(gulp.dest('./dist/navigation-bar/'));
+    gulp.src('src/*.html').pipe(gulp.dest('./dist'));
 });
 
 gulp.task('vulcanize-elems', function() {
@@ -140,7 +156,7 @@ gulp.task('deploy', function() {
 });
 
 var b = browserify({
-  entries: ['./src/js/main.js'],
+  entries: ['./src/app.module.js'],
   cache: {},
   packageCache: {},
   plugin: [watchify],
@@ -152,9 +168,14 @@ b.on('update', bundle); // on any dep update, runs the bundler
 b.on('log', gulpUtil.log); // output build logs to terminal
 
 function bundle() {
-  return b.bundle()
+    return b.bundle()
     // log errors if they happen
-    .on('error', gulpUtil.log.bind(gulpUtil, 'Browserify Error'))
+    // .on('error', gulpUtil.log.bind(gulpUtil, 'Browserify Error'))
+    .on('error', function(err) {
+        gulpUtil.log(err.message);
+        browserSync.notify("Browserify Error!");
+        this.emit("end");
+    })
     .pipe(source('bundle.js'))
     // optional, remove if you don't need to buffer file contents
     .pipe(buffer())
@@ -163,9 +184,10 @@ function bundle() {
        // Add transformation tasks to the pipeline here.
     .pipe(uglify())
     .pipe(sourcemaps.write('./')) // writes .map file
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./dist'))
+    .pipe(browserSync.stream());
 }
 
 gulp.task('serve', function(callback) {
-  runSequence('clean', ['styles', 'lint', 'js', 'copy', 'vulcanize-elems'], ['browserSync', 'watch'], callback);
+    runSequence('clean', ['styles', 'lint', 'js', 'copy', 'vulcanize-elems'], ['browserSync', 'watch'], callback);
 });
