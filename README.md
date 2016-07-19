@@ -1,15 +1,17 @@
-# senior-web-developer-nanodegree-public-transportation-app
-1. The app provides San Francisco Bay Area Rapid Transit departure and arrival times of trains.
-2. The app allows users to access Transit Data while application is offline.
+# senior-web-developer-nanodegree-corporate-dashboard-app
+1. This corporate dashborad application was developed with the angular frontend development framework.
+2. It presents a geospacial view of the the corporatrions locations and the number of employees at each.
+3. It also presents a view of the corporations key metrics: number of open issues, tend of paying customers and trend of reported issues.
+4. and fillay it presents a detailed view of the raw data on all customer related issues.
 
 
 # Installation
 
-1. Fork the repository, download it and open the run index.html in the dist folder on localhost.
-2. Or run the "gulp" command from the root directory (the src folder) in the command line as described below on running the build process step 1.
+1. Fork the repository, download it and run both 'npm install' and 'bower install' form the application root.
+2. The run the "gulp serve" command from the root directory (the src folder) in the command line as described below on running the build process step 1.
 
 ## Usage
-1. After the application has been loaded successfully, you may sign up and start using it to identify departure and arrival times of trains by selecting the desired departure and arrival stations.
+1. After the application has been loaded successfully, use the tabs to navigate between the dashboards.
 
 
 ## Contributing

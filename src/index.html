@@ -51,11 +51,7 @@
                     // // Add Polymer specific classes to the body
                     document.body.classList.add('fullbleed', 'layout', 'vertical');
                     document.body.innerHTML = this.responseText;
-                    // document.body.prepend(this.responseText);
-                    // console.log('this.responseText');
-                    // console.log(this.responseText);
                     loadScripts();
-                    // console.log(document.body.innerHTML);
                 });
                 req.send();
             };
@@ -63,7 +59,6 @@
             // In an actual app, you'd need much more robust logic to determine when and how specific
             // scripts are injected into the page.
             function loadScripts() {
-                console.log('loadScripts');                
                 var scripts = [
                     {
                         src: 'bundle.js'
@@ -82,7 +77,6 @@
                         script[a] = true;
                       });
                   };
-                  console.log(script.src)
                   document.body.appendChild(script);
                 });
             };

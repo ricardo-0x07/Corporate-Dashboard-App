@@ -1,43 +1,59 @@
-<div class="container table-responsive panel panel-info" >
+<div class="container panel panel-info" >
     <div class="panel-heading"><h2>Data View</h2></div>
-    <p>Issues on all Projects :</p>
-    <div class="panel-body">
-        <table class="table table-striped">
+    <p>Issues:</p>
+    <div class="panel-body table-responsive ">
+    	<label><input placeholder="Search" class="form-control" ng-model="searchText"></label>
+        <table class="issues table table-striped">
 	  	    <thead>
 	  			<tr>
-	  				<th>Customer Name</th>
-	  				<th>Customer Email</th>
-	  				<th>Description</th>
-	  				<th>Employee</th>
-	  				<!-- <th>createdDate</th>
-	  				<th>resolutionDate</th> -->
-	  				<th>Submission</th>
-	  				<th>Status</th>
-	  				<!-- <th>Perform/Review Analysis</th>
-	  				<th>Specify/Review Actions</th>
-	  				<th>Specify/Review Recommendations</th> -->
+	  				<th>
+	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('customer_name')">Customer</button>
+	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'customer_name'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</th>
+	  				<th>
+	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('customer_email')">Email</button>
+	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'customer_email'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</th>
+	  				<th>
+	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('description')">Description</button>
+	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'description'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</th>
+	  				<th>
+	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('employee_name')">Employee</button>
+	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'employee_name'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</th>
+	  				<th>
+	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('submission')">Time</button>
+	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'submission'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</th>
+	  				<th>
+	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('status')">Status</button>
+	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'status'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</th>
 	  			</tr>
 	  	    </thead>
 	  	    <tbody>
-	  			<tr ng-repeat="issue in $ctrl.pagedIssues">
+	  			<tr ng-repeat="issue in $ctrl.issues.slice($ctrl.begin, $ctrl.end) | filter:searchText | orderBy:$ctrl.propertyName:$ctrl.reverse">
 	  				<td>{{issue.customer_name}}</td>
 	  				<td>{{issue.customer_email}}</td>
 	  				<td>{{issue.description}}</td>
 	  				<td>{{issue.employee_name}}</td>
-	  				<!-- <td>{{issue.createdDate}}</td>
-	  				<td>{{issue.resolutionDate}}</td> -->
 	  				<td>{{issue.submission}}</td>
 	  				<td>{{issue.status}}</td>
-	  				<!-- <td><button ng-click="viewAnalysis()">Analysis</button></td>
-	  				<td><button ng-click="viewActions()">Actions</button></td>
-	  				<td><button ng-click="viewRecommendations()">Recommendations</button></td> -->
 	  			</tr>
 	  	    </tbody>
         </table>  	
     </div>
     <div class="panel-footer">
 	    <div >
-	      <uib-pagination total-items="$ctrl.totalItems" ng-model="$ctrl.currentPage" ng-change="$ctrl.pageChanged()"></uib-pagination>
+	      <uib-pagination
+	      boundary-links="true"
+	      direction-links="true"
+	      rotate="false" 
+	      total-items="$ctrl.totalItems" 
+	      ng-model="$ctrl.currentPage" 
+	      ng-change="$ctrl.pageChanged()">
+	      </uib-pagination>
 	    </div>
     </div>
 </div>

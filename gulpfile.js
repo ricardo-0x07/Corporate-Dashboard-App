@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-env node */
 
 var plugins = require('gulp-load-plugins')();
@@ -21,37 +22,39 @@ var ghPages = require('gulp-gh-pages');
 var mergeStream = require('merge-stream');
 var del = require('del');
 var runSequence = require('run-sequence');
+var karma = require('karma');
 
 gulp.task('clean', function() {
-  return del(['dist']);
+    return del(['dist']);
 });
 
 gulp.task('copy', function() {
-  return mergeStream(
-    gulp.src('src/core/google-chart-projecttrends/*.html').pipe(gulp.dest('./dist/core/google-chart-projecttrends/')),
-    gulp.src('src/core/google-chart-issuestrend/*.html').pipe(gulp.dest('./dist/core/google-chart-issuestrend/')),
-    gulp.src('src/dashboard-geospacial/*.html').pipe(gulp.dest('./dist/dashboard-geospacial/')),
-    gulp.src('src/dashboard-keymetrics/*.html').pipe(gulp.dest('./dist/dashboard-keymetrics/')),
-    gulp.src('src/dashboard-dataview/*.html').pipe(gulp.dest('./dist/dashboard-dataview/')),
-    gulp.src('src/dashboard/*.html').pipe(gulp.dest('./dist/dashboard/')),
-    gulp.src('src/core/google-map/*.html').pipe(gulp.dest('./dist/core/google-map/')),
-    gulp.src('src/navigation-bar/*.html').pipe(gulp.dest('./dist/navigation-bar/')),
-    gulp.src('src/sw/sw.js').pipe(gulp.dest('dist/')),
+    return mergeStream(
+    gulp.src('src/app/core/google-chart-customertrends/*.html').pipe(gulp.dest('./dist/core/google-chart-customertrends/')),
+    gulp.src('src/app/core/google-chart-issuestrend/*.html').pipe(gulp.dest('./dist/core/google-chart-issuestrend/')),
+    gulp.src('src/app/components/dashboard-geospacial/*.html').pipe(gulp.dest('./dist/dashboard-geospacial/')),
+    gulp.src('src/app/components/dashboard-keymetrics/*.html').pipe(gulp.dest('./dist/dashboard-keymetrics/')),
+    gulp.src('src/app/components/dashboard-dataview/*.html').pipe(gulp.dest('./dist/dashboard-dataview/')),
+    gulp.src('src/app/components/dashboard/*.html').pipe(gulp.dest('./dist/dashboard/')),
+    gulp.src('src/app/core/google-map/*.html').pipe(gulp.dest('./dist/core/google-map/')),
+    gulp.src('src/app/components/navigation-bar/*.html').pipe(gulp.dest('./dist/navigation-bar/')),
+    gulp.src('src/assets/sw/sw.js').pipe(gulp.dest('dist/')),
     gulp.src('src/*.html').pipe(gulp.dest('dist/')),
     gulp.src('src/*.xml').pipe(gulp.dest('dist/')),
-    gulp.src('src/img/*').pipe(imagemin({
-      progressive: true,
-      use: [pngquant()]
+    gulp.src('src/assets/img/*').pipe(imagemin({
+        progressive: true,
+        use: [pngquant()]
     })).pipe(gulp.dest('dist/img')),
     // gulp.src('src/jasmine/**/*.js').pipe(gulp.dest('./dist/jasmine/')),
+    gulp.src('src/assets/data/*.csv').pipe(gulp.dest('dist/data/')),
     gulp.src('src/*.json').pipe(gulp.dest('dist/')),
     gulp.src('src/favicon.ico').pipe(gulp.dest('dist/')),
-    gulp.src('src/idb/**/*').pipe(gulp.dest('dist/idb'))
+    gulp.src('src/assets/idb/**/*').pipe(gulp.dest('dist/idb'))
   );
 });
 
 gulp.task('styles', function() {
-  gulp.src('src/sass/**/*.scss')
+    gulp.src('src/assets/sass/**/*.scss')
     .pipe(sass({outputStyle: 'compressed'
     }).on('error', sass.logError))
     .pipe(plugins.sourcemaps.init())
@@ -63,104 +66,91 @@ gulp.task('styles', function() {
 });
 
 gulp.task('browserSync', function() {
-  browserSync.init({
-    notify: false,
-    port: 3002,
-    server: {
-      baseDir: './dist',
-      middleware: function(req, res, next) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        req.mode = 'no-cors';
-        next();
-      }
-    }
-  });
+    browserSync.init({
+        notify: false,
+        files: ['./dist/**/*.*'],
+        port: 3002,
+        server: {
+            baseDir: './dist',
+            middleware: function(req, res, next) {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                req.mode = 'no-cors';
+                next();
+            }
+        }
+    });
 });
 
 gulp.task('watch', ['browserSync'], function() {
-  gulp.watch('src/sass/**/*.scss', ['styles']);
-  gulp.watch('src/js/**/*.js', ['lint']);
-  gulp.watch('src/sw/sw.js', ['sw']);
-  gulp.watch('src/**/*.html', ['copy-html']);
-  // gulp.watch('src/jasmine/spec/spec.js', ['copy-spec']);
-  gulp.watch('dist/index.html').on('change', browserSync.reload);
-
-  // browserSync.init({
-  //   // server: './dist'
-  //   notify: false,
-  //   port: 3002,
-  //   server: {
-  //     baseDir: './dist',
-  //     middleware: function(req, res, next) {
-  //       res.setHeader('Access-Control-Allow-Origin', '*');
-  //       req.mode = 'no-cors';
-  //       next();
-  //     }
-  //   }
-
-  // });
+    gulp.watch('src/assets/sass/**/*.scss', ['styles']);
+    gulp.watch('src/assets/js/**/*.js', ['lint']);
+    gulp.watch('src/assets/sw/sw.js', ['sw']);
+    gulp.watch('src/**/*.html', ['copy-html']);
+    // gulp.watch('src/jasmine/spec/spec.js', ['copy-spec']);
+    gulp.watch('dist/index.html').on('change', browserSync.reload);
 });
 
 gulp.task('sw', function() {
-    gulp.src('src/sw/sw.js').pipe(gulp.dest('dist/'));
+    gulp.src('src/assets/sw/sw.js').pipe(gulp.dest('dist/'));
 });
 
 gulp.task('copy-html', function() {
-    gulp.src('src/core/google-chart-projecttrends/*.html').pipe(gulp.dest('./dist/core/google-chart-projecttrends/'));
-    gulp.src('src/core/google-chart-issuestrend/*.html').pipe(gulp.dest('./dist/core/google-chart-issuestrend/'));
-    gulp.src('src/dashboard-geospacial/*.html').pipe(gulp.dest('./dist/dashboard-geospacial/'));
-    gulp.src('src/dashboard-keymetrics/*.html').pipe(gulp.dest('./dist/dashboard-keymetrics/'));
-    gulp.src('src/dashboard-dataview/*.html').pipe(gulp.dest('./dist/dashboard-dataview/'));
-    gulp.src('src/dashboard/*.html').pipe(gulp.dest('./dist/dashboard/'));
-    gulp.src('src/core/google-map/*.html').pipe(gulp.dest('./dist/core/google-map/'));
-    gulp.src('src/navigation-bar/*.html').pipe(gulp.dest('./dist/navigation-bar/'));
+    gulp.src('src/app/core/google-chart-customertrends/*.html').pipe(gulp.dest('./dist/core/google-chart-customertrends/'));
+    gulp.src('src/app/core/google-chart-issuestrend/*.html').pipe(gulp.dest('./dist/core/google-chart-issuestrend/'));
+    gulp.src('src/app/components/dashboard-geospacial/*.html').pipe(gulp.dest('./dist/dashboard-geospacial/'));
+    gulp.src('src/app/components/dashboard-keymetrics/*.html').pipe(gulp.dest('./dist/dashboard-keymetrics/'));
+    gulp.src('src/app/components/dashboard-dataview/*.html').pipe(gulp.dest('./dist/dashboard-dataview/'));
+    gulp.src('src/app/components/dashboard/*.html').pipe(gulp.dest('./dist/dashboard/'));
+    gulp.src('src/app/core/google-map/*.html').pipe(gulp.dest('./dist/core/google-map/'));
+    gulp.src('src/app/components/navigation-bar/*.html').pipe(gulp.dest('./dist/navigation-bar/'));
     gulp.src('src/*.html').pipe(gulp.dest('./dist'));
 });
 
 gulp.task('vulcanize-elems', function() {
-  return gulp.src('src/polymer-elements/elements.html')
+    return gulp.src('src/assets/polymer-elements/elements.html')
     .pipe(vulcanize({
-      abspath: '',
-      excludes: [],
-      stripExcludes: false,
-      inlineScripts: true,
-      inlineCss: true,
-      stripComments: true
-    })).on("error", function(err) {
-      console.log(err);
+        abspath: '',
+        excludes: [],
+        stripExcludes: false,
+        inlineScripts: true,
+        inlineCss: true,
+        stripComments: true
+    })).on('error', function(err) {
+        console.log(err);
     })
     .pipe(gulp.dest('dist/polymer-elements/'));
 });
 
 gulp.task('lint', function() {
-  return gulp.src(['src/js/**/*.js'])
-		// eslint() attaches the lint output to the eslint property
-		// of the file object so it can be used by other modules.
-		.pipe(eslint())
-		// eslint.format() outputs the lint results to the console.
-		// Alternatively use eslint.formatEach() (see Docs).
-		.pipe(eslint.format())
-		// To have the process exit with an error code (1) on
-		// lint error, return the stream and pipe to failOnError last.
-		.pipe(eslint.failOnError());
+    return gulp.src(['src/assets/js/**/*.js'])
+    // eslint() attaches the lint output to the eslint property
+    // of the file object so it can be used by other modules.
+    .pipe(eslint())
+    // eslint.format() outputs the lint results to the console.
+    // Alternatively use eslint.formatEach() (see Docs).
+    .pipe(eslint.format())
+    // To have the process exit with an error code (1) on
+    // lint error, return the stream and pipe to failOnError last.
+    .pipe(eslint.failOnError());
 });
 
-gulp.task('tests', function() {
-  gulp.src('src/jasmine/spec/spec.js')
-   .pipe(jasmine());
+gulp.task('tests', function(done) {
+    new karma.Server({
+        configFile: __dirname + '/karma.conf.js'
+    }, done).start();
 });
 
 gulp.task('deploy', function() {
-  return gulp.src('./dist/**/*')
+    return gulp.src('./dist/**/*')
     .pipe(ghPages());
 });
 
 var b = browserify({
-  entries: ['./src/app.module.js'],
-  cache: {},
-  packageCache: {},
-  plugin: [watchify],
-  debug: true
+    entries: ['./src/app/app.module.js'],
+    cache: {},
+    packageCache: {},
+    plugin: [watchify],
+    debug: true
 });
 
 gulp.task('js', bundle); // so you can run `gulp js` to build the file
