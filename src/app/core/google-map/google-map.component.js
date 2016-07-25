@@ -8,7 +8,7 @@ var $ = require('jquery');
 angular.module('core.googleMap')
 .component('googleMap', {
     templateUrl: '/core/google-map/google-map.template.html',
-    controller: ['$window', 'PapaParse', function GoogleMapController($window, PapaParse) {
+    controller: ['$window', 'PapaParse', '$interval', function GoogleMapController($window, PapaParse, $interval) {
         var $ctrl = this;
         $ctrl.projectIndex = 0;
         // current selected marker
@@ -64,9 +64,9 @@ angular.module('core.googleMap')
         // Iterates through the array of locations, creates a search object for each location
         $ctrl.process = function(response) {
             // Start off with a promise that always resolves
-            // var sequence = Promise.resolve();
+            var sequence = Promise.resolve();
             $ctrl.locations = response.data.slice(0, 5);
-            $ctrl.locations.reduce(function(sequence, location) {
+            $ctrl.locations.reduce(function(prev, location, index, array) {
                 // the search request object
                 $ctrl.currentLocation = location;
                 var request = {query: location.address};
@@ -244,13 +244,29 @@ angular.module('core.googleMap')
             GoogleMapsLoader.SENSOR = false;
             return new Promise(function(resolve, reject){
                 GoogleMapsLoader.load(resolve);
-            });
-        };
-        $ctrl.$onInit = function() {
-            $ctrl.init()
+            })
             .then($ctrl.googleLoad)
             .then($ctrl.fetchLocationData)
             .then($ctrl.process);
+        };
+        $ctrl.$onInit = function() {
+            $ctrl.init();
+            // $ctrl.fetchLocationData()
+            // .then($ctrl.process);
+        };
+        $ctrl.startLongPolling = $interval(function() {
+            $ctrl.init();
+        }, 180000);
+        $ctrl.endLongPolling = function() {
+            console.log('endLongPolling');
+            if (angular.isDefined($ctrl.startLongPolling)) {
+                console.log('angular.isDefined($ctrl.startLongPolling)');
+                $interval.cancel($ctrl.startLongPolling);
+                $ctrl.startLongPolling = undefined;
+            }
+        };
+        $ctrl.$onDestroy = function() {
+            $ctrl.endLongPolling();
         };
     }]
 });

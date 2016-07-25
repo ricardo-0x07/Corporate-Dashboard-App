@@ -1,48 +1,60 @@
-<div class="container panel panel-info" >
+<div class="container-flex panel panel-info" >
     <div class="panel-heading"><h2>Data View</h2></div>
     <p>Issues:</p>
-    <div class="panel-body table-responsive ">
+    <div role="main" class="ui-content panel-body">
     	<label><input placeholder="Search" class="form-control" ng-model="searchText"></label>
-        <table class="issues table table-striped">
+        <table data-role='table' id="no-more-tables" class=" table table-stripe issues hover">
 	  	    <thead>
-	  			<tr>
-	  				<th>
-	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('customer_name')">Customer</button>
-	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'customer_name'" ng-class="{reverse: $ctrl.reverse}"></span>
+                 <tr>
+	  				<th value="Customer">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('customer_name')">Customer
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'customer_name'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
 	  				</th>
-	  				<th>
-	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('customer_email')">Email</button>
-	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'customer_email'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				<th value="Email">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('customer_email')">Email
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'customer_email'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
 	  				</th>
-	  				<th>
-	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('description')">Description</button>
-	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'description'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				<th value="Description">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('description')">Description
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'description'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
 	  				</th>
-	  				<th>
-	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('employee_name')">Employee</button>
-	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'employee_name'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				<th value="Employee">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('employee_name')">Employee
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'employee_name'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
 	  				</th>
-	  				<th>
-	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('submission')">Time</button>
-	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'submission'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				<th value="Time">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('submission')">Time
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'submission'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
 	  				</th>
-	  				<th>
-	  				<button type="button" class="btn btn-info" ng-click="$ctrl.sortBy('status')">Status</button>
-	  				<span class="sortorder" ng-show="$ctrl.propertyName === 'status'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				<th value="Status">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('status')">Status
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'status'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
+	  				</th>
+	  				<th value="Closed On">
+	  				<button type="button" class="btn thbtn btn-info" ng-click="$ctrl.sortBy('closed_on')">Closed On
+	  					<span class="sortorder" ng-show="$ctrl.propertyName === 'closed_on'" ng-class="{reverse: $ctrl.reverse}"></span>
+	  				</button>
 	  				</th>
 	  			</tr>
 	  	    </thead>
 	  	    <tbody>
 	  			<tr ng-repeat="issue in $ctrl.issues.slice($ctrl.begin, $ctrl.end) | filter:searchText | orderBy:$ctrl.propertyName:$ctrl.reverse">
-	  				<td>{{issue.customer_name}}</td>
-	  				<td>{{issue.customer_email}}</td>
-	  				<td>{{issue.description}}</td>
-	  				<td>{{issue.employee_name}}</td>
-	  				<td>{{issue.submission}}</td>
-	  				<td>{{issue.status}}</td>
+	  				<td ng-click="$ctrl.sortBy('customer_name')" data-title="Customer">{{issue.customer_name}}</td>
+	  				<td ng-click="$ctrl.sortBy('customer_email')" data-title="Email">{{issue.customer_email}}</td>
+	  				<td ng-click="$ctrl.sortBy('description')" data-title="Description">{{issue.description}}</td>
+	  				<td ng-click="$ctrl.sortBy('employee_name')" data-title="Employee">{{issue.employee_name}}</td>
+	  				<td ng-click="$ctrl.sortBy('submission')" data-title="Time">{{issue.submission}}</td>
+	  				<td ng-click="$ctrl.sortBy('status')" data-title="Status">{{issue.status}}</td>
+	  				<td ng-click="$ctrl.sortBy('closed_on')" data-title="Closed On">{{issue.closed_on}}</td>
 	  			</tr>
 	  	    </tbody>
-        </table>  	
+        </table>
     </div>
     <div class="panel-footer">
 	    <div >

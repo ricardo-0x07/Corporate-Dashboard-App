@@ -6,7 +6,7 @@ require('angular-google-chart');
 angular.module('core.googleChartIssuestrend')
 .component('googleChartIssuestrend', {
     templateUrl: '/core/google-chart-issuestrend/google-chart-issuestrend.template.html',
-    controller: ['$window', 'googleChartApiPromise', 'PapaParse', function GoogleChartIssuesTrendController($window, googleChartApiPromise, PapaParse) {
+    controller: ['$window', 'googleChartApiPromise', 'PapaParse', '$interval', function GoogleChartIssuesTrendController($window, googleChartApiPromise, PapaParse, $interval) {
         var $ctrl = this;
         $ctrl.chart = {};
         $ctrl.chart.type = 'BarChart';
@@ -60,7 +60,24 @@ angular.module('core.googleChartIssuestrend')
             .then($ctrl.formatData)
             .then($ctrl.setChartData);
         };
-        $ctrl.init();
+        $ctrl.$onInit = function() {
+            $ctrl.init();
+        };
+
+        $ctrl.startLongPolling = $interval(function() {
+            $ctrl.init();
+        }, 5000);
+        $ctrl.endLongPolling = function() {
+            console.log('endLongPolling');
+            if (angular.isDefined($ctrl.startLongPolling)) {
+                console.log('angular.isDefined($ctrl.startLongPolling)');
+                $interval.cancel($ctrl.startLongPolling);
+                $ctrl.startLongPolling = undefined;
+            }
+        };
+        $ctrl.$onDestroy = function() {
+            $ctrl.endLongPolling();
+        };
     }],
     bindings: {
         fieldValue: '<',

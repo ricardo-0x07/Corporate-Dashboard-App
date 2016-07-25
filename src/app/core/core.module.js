@@ -10,5 +10,6 @@ require('./google-chart-customertrends/google-chart-customertrends.module');
 require('./google-chart-customertrends/google-chart-customertrends.component');
 require('./papa-parse/papa-parse.module');
 require('./papa-parse/papa-parse.service');
+require('./api/api.module');
 
-angular.module('core', ['core.papaParse', 'core.googleMap', 'core.googleChartIssuestrend', 'core.googleChartCustomertrends']);
+angular.module('core', ['core.papaParse', 'core.googleMap', 'core.googleChartIssuestrend', 'core.googleChartCustomertrends', 'core.api']);

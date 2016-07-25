@@ -2,7 +2,7 @@
 1. This corporate dashborad application was developed with the angular frontend development framework.
 2. It presents a geospacial view of the the corporatrions locations and the number of employees at each.
 3. It also presents a view of the corporations key metrics: number of open issues, tend of paying customers and trend of reported issues.
-4. and fillay it presents a detailed view of the raw data on all customer related issues.
+4. Finallay it presents a detailed view of the raw data on all customer related issues. This tabular view allows filtering and sorting of the data presented. to sort simply click on a fiel or heading of the column you would like to sortby.
 
 
 # Installation

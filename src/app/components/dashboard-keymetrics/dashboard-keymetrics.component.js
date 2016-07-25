@@ -4,7 +4,7 @@ var _ = require('lodash');
 angular.module('dashboardKeymetrics')
 .component('dashboardKeymetrics', {
     templateUrl: '/dashboard-keymetrics/dashboard-keymetrics.template.html',
-    controller: ['$window', '$state', 'PapaParse', function DashboardKeymetricsController($window, $state, PapaParse) {
+    controller: ['$window', '$state', 'PapaParse', '$interval', function DashboardKeymetricsController($window, $state, PapaParse, $interval) {
         var $ctrl = this;
         $ctrl.openIssues = 0;
         $ctrl.issues = [];
@@ -21,6 +21,20 @@ angular.module('dashboardKeymetrics')
         };
         $ctrl.$onInit = function() {
             $ctrl.fetchAllIssues();
+        };
+        $ctrl.startLongPolling = $interval(function() {
+            $ctrl.fetchAllIssues();
+        }, 5000);
+        $ctrl.endLongPolling = function() {
+            console.log('endLongPolling');
+            if (angular.isDefined($ctrl.startLongPolling)) {
+                console.log('angular.isDefined($ctrl.startLongPolling)');
+                $interval.cancel($ctrl.startLongPolling);
+                $ctrl.startLongPolling = undefined;
+            }
+        };
+        $ctrl.$onDestroy = function() {
+            $ctrl.endLongPolling();
         };
     }]
 });

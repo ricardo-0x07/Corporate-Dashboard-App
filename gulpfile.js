@@ -46,7 +46,8 @@ gulp.task('copy', function() {
         use: [pngquant()]
     })).pipe(gulp.dest('dist/img')),
     // gulp.src('src/jasmine/**/*.js').pipe(gulp.dest('./dist/jasmine/')),
-    gulp.src('src/assets/data/*.csv').pipe(gulp.dest('dist/data/')),
+    gulp.src('src/assets/data/*.*').pipe(gulp.dest('dist/data/')),
+    gulp.src('src/assets/lib/**').pipe(gulp.dest('dist/lib/')),
     gulp.src('src/*.json').pipe(gulp.dest('dist/')),
     gulp.src('src/favicon.ico').pipe(gulp.dest('dist/')),
     gulp.src('src/assets/idb/**/*').pipe(gulp.dest('dist/idb'))

@@ -4,13 +4,11 @@
 angular.module('dashboardDataview')
 .component('dashboardDataview', {
     templateUrl: '/dashboard-dataview/dashboard-dataview.template.html',
-    controller: ['$window', 'PapaParse', function DashboardDataviewController($window, PapaParse) {
+    controller: ['$window', 'APIService', '$interval', function DashboardDataviewController($window, APIService, $interval) {
         var $ctrl = this;
         $ctrl.issues = [];
-        // $ctrl.pagedIssues;
         $ctrl.currentPage = 1;
         $ctrl.pageSize = 5;
-        // $ctrl.totalItems = 0;
 
         $ctrl.paginateIssues = function() {
             console.log('paginateIssues');
@@ -26,8 +24,7 @@ angular.module('dashboardDataview')
             $ctrl.totalItems = response.data.length;
         };
         $ctrl.fetchAllIssues = function() {
-            // $ctrl.currentPage = 1;
-            return PapaParse.parse('./data/issues.csv')
+            return APIService.get('./data/issues.json')
             .then(processResponse)
             .then($ctrl.pageChanged);
         };
@@ -45,8 +42,23 @@ angular.module('dashboardDataview')
         $ctrl.reverse = true;
 
         $ctrl.sortBy = function(propertyName) {
+            console.log('sortby');
             $ctrl.reverse = ($ctrl.propertyName === propertyName) ? !$ctrl.reverse : false;
             $ctrl.propertyName = propertyName;
+        };
+        $ctrl.startLongPolling = $interval(function() {
+            $ctrl.fetchAllIssues();
+        }, 5000);
+        $ctrl.endLongPolling = function() {
+            console.log('endLongPolling');
+            if (angular.isDefined($ctrl.startLongPolling)) {
+                console.log('angular.isDefined($ctrl.startLongPolling)');
+                $interval.cancel($ctrl.startLongPolling);
+                $ctrl.startLongPolling = undefined;
+            }
+        };
+        $ctrl.$onDestroy = function() {
+            $ctrl.endLongPolling();
         };
     }]
 });

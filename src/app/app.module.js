@@ -1,6 +1,8 @@
-/* global angular */
+/* global angular, window */
 'use strict';
 global.jQuery = require('jquery');
+var $ = require('jquery');
+
 require('bootstrap');
 require('angular');
 require('angular-mocks');
@@ -17,7 +19,11 @@ require('./components/navigation-bar/navigation-bar.module');
 require('./core/core.module');
 require('angular-ui-bootstrap');
 require('angular-google-maps');
-require('ui-router-extras');
+require('datatables.net-bs')(window, $);
+require('datatables.net-buttons-bs')(window, $);
+require('datatables.net-responsive-bs')(window, $);
+require('datatables.net-buttons/js/buttons.html5.js')();  // HTML 5 file export
+require('angular-datatables');
 var dependencies = [
     require('angular-ui-router').default,
     'dashboardDataview',
@@ -28,7 +34,8 @@ var dependencies = [
     'ngMaterial',
     'ngMessages',
     'navigationBar',
-    'core'
+    'core',
+    'datatables'
 ];
 
 var corporateDashboardApp = angular.module('corporateDashboardApp', dependencies);
@@ -36,7 +43,6 @@ var corporateDashboardApp = angular.module('corporateDashboardApp', dependencies
 corporateDashboardApp.config(['$locationProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
   function($locationProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
       $urlRouterProvider.otherwise('/dashboard');
-
       $stateProvider.state({
           name: 'dashboard',
           url: '/dashboard',
@@ -56,6 +62,11 @@ corporateDashboardApp.config(['$locationProvider', '$httpProvider', '$stateProvi
           url: '/dashboard/dataview',
           views: {
               dataview: {component: 'dashboardDataview'}
+          },
+          resolve: {
+              issues: ['PapaParse', function(PapaParse) {
+                  return PapaParse.parse('./data/issues.csv');
+              }]
           }
       });
 

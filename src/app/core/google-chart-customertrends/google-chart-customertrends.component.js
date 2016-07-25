@@ -6,7 +6,7 @@ require('angular-google-chart');
 angular.module('core.googleChartCustomertrends')
 .component('googleChartCustomertrends', {
     templateUrl: '/core/google-chart-customertrends/google-chart-customertrends.template.html',
-    controller: ['$window', 'googleChartApiPromise', 'PapaParse', function GoogleChartCustomerTrendsController($window, googleChartApiPromise, PapaParse) {
+    controller: ['$window', 'googleChartApiPromise', 'PapaParse', '$interval', function GoogleChartCustomerTrendsController($window, googleChartApiPromise, PapaParse, $interval) {
         var $ctrl = this;
         $ctrl.chart = {};
         $ctrl.chart.type = 'LineChart';
@@ -59,7 +59,24 @@ angular.module('core.googleChartCustomertrends')
             .then($ctrl.formatData)
             .then($ctrl.setChartData);
         };
-        $ctrl.init();
+        $ctrl.$onInit = function() {
+            $ctrl.init();
+        };
+
+        $ctrl.startLongPolling = $interval(function() {
+            $ctrl.init();
+        }, 5000);
+        $ctrl.endLongPolling = function() {
+            console.log('endLongPolling');
+            if (angular.isDefined($ctrl.startLongPolling)) {
+                console.log('angular.isDefined($ctrl.startLongPolling)');
+                $interval.cancel($ctrl.startLongPolling);
+                $ctrl.startLongPolling = undefined;
+            }
+        };
+        $ctrl.$onDestroy = function() {
+            $ctrl.endLongPolling();
+        };
     }],
     bindings: {
         fieldValue: '<',
