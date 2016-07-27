@@ -56,7 +56,9 @@ SOFTWARE.
 
 
 ## changelog
-
+1. The the data presentation in the DOM is only re-rendered if there are changes in the data file. 
+2. Now use stored longitide and latitude mock data to place markers google places text search no longer used.
+3. Impemented more regular polling of mock location data.
 
 # How to set up the build process
 

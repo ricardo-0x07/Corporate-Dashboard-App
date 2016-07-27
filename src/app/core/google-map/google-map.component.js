@@ -3,7 +3,6 @@
 
 var GoogleMapsLoader = require('google-maps');
 var ArbitratorConfig = require('../../../assets/js/config');
-var $ = require('jquery');
 
 angular.module('core.googleMap')
 .component('googleMap', {
@@ -64,15 +63,11 @@ angular.module('core.googleMap')
         // Iterates through the array of locations, creates a search object for each location
         $ctrl.process = function(response) {
             // Start off with a promise that always resolves
-            var sequence = Promise.resolve();
             $ctrl.locations = response.data.slice(0, 5);
             $ctrl.locations.reduce(function(prev, location, index, array) {
                 // the search request object
                 $ctrl.currentLocation = location;
-                var request = {query: location.address};
-
-                return Promise.resolve({request: request, location: location})
-                .then($ctrl.textSearchCallback)
+                return Promise.resolve(location)
                 .then($ctrl.createMapMarker);
             });
         };
@@ -104,35 +99,24 @@ angular.module('core.googleMap')
         */
         $ctrl.createMapMarker = function(response) {
             // The next lines save location data from the search result object to local variables
-            var lat = response.placeData.geometry.location.lat();  // latitude from the place service
-            var lon = response.placeData.geometry.location.lng();  // longitude from the place service
-            var name = response.placeData.name;   // name of the place from the place service
+            var lat = parseFloat(response.location_latitude);  // latitude from the place service
+            var lon = parseFloat(response.location_longitude);  // longitude from the place service
+            var latlng = new google.maps.LatLng(lat, lon);
+            var name = response.address;   // name of the place from the place service
             $ctrl.bounds = $window.mapBounds;            // current boundaries of the map window
 
             // marker is an object with additional data about the pin for a single location
             var marker = new google.maps.Marker({
                 map: $ctrl.map,
-                position: response.placeData.geometry.location,
+                position: latlng,
                 title: name,
-                placeId: response.placeData.place_id,
+                placeId: response.id,
                 draggable: true,
                 animation: google.maps.Animation.DROP,
-                formatted_address: response.placeData.formatted_address
+                formatted_address: response.address
                 // icon: placeData.icon
             });
-            marker['infoWindow'] = new google.maps.InfoWindow({
-                content: '<div>' +
-                  '<div class="panel panel-default">' +
-                    '<div class="panel-heading projectBg">' +
-                      // '<h3 class="panel-title">Project: ' + location.name + '</h3>' +
-                    '</div>' +
-                    '<div class="panel-body">' +
-                      '<p class="list-group-item" text="">Number of Employees:  ' + response.location.number_employees + '</p>' +
-                      '<p class="list-group-item" text="">Location:  ' + response.location.address + '</p>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>'
-            });
+            marker['infoWindow'] = $ctrl.getInfoWindow(response);
             // add markers to marker array
             $ctrl.markers.push(marker);
             // app.ViewModel.markers.push(marker);
@@ -162,25 +146,29 @@ angular.module('core.googleMap')
            // center the map
             $ctrl.centerMap();
         };
-          /**
-          * @description get an instance of the information window for each marker that displays request details
-          * @constructor
-          */
-        $ctrl.getInfoWindow = function() {
-            var templateBinding =
-            '<div id="info-window">' +
-              '<h4>' + $ctrl.currentLocation.name + '</h4>' +
-              '<h6><strong>The 3 other nearby places via Yelp</strong></h6>' +
-              '<table class="table table-striped table-condensed" id="marker-tbl">' +
-                '<thead><tr><th> Business </th><th> Rated </th>' +
-                '<th class="hidden-xs"> Phone </th></tr> </thead>' +
-                '<tbody data-bind="template: { name: \'business-template\', ' +
-                'foreach: app.ViewModel.businesses, as: \'business\' }"></tbody>' +
-                '</table>' +
-            '</div>';
-            $ctrl.isInfoWindowLoaded = false;
+        /**
+        * @description get an instance of the information window for each marker that displays request details
+        * @constructor
+        */
+        $ctrl.getInfoWindow = function(location) {
             return new google.maps.InfoWindow({
-                content: templateBinding
+                content: '<div>' +
+                  '<div class="panel panel-default">' +
+                    '<div class="panel-heading projectBg">' +
+                      '<h3 class="panel-title">Location: ' + location.address + '</h3>' +
+                    '</div>' +
+                    '<div class="panel-body">' +
+                      '<p class="list-group-item" text="">Number of Employees:  ' + location.number_employees + '</p>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>'
+            });
+        };
+        $ctrl.updateInfoWindow = function(location) {
+            $ctrl.markers.forEach(function(marker) {
+                if (marker.placeId === location.id) { 
+                    marker.infoWindow = $ctrl.getInfoWindow(location);
+                }
             });
         };
         /**
@@ -214,7 +202,6 @@ angular.module('core.googleMap')
           * @return {boolean} true when done
           */
         $ctrl.googleError = function() {
-            // app.ViewModel.view('error-template');
             $ctrl.stop = true;
             return (true);
         };
@@ -224,9 +211,6 @@ angular.module('core.googleMap')
         $ctrl.closeInfoWindow = function() {
             $ctrl.currentMarker.infoWindow.close();
             $ctrl.currentMarker.setAnimation(null);
-
-            // $ctrl.errorInfoWindow.close();
-            // $ctrl.loadingInfoWindow.close();
         };
         $ctrl.toggleBounce = function() {
             $ctrl.markers.forEach(function(marker) {
@@ -251,16 +235,18 @@ angular.module('core.googleMap')
         };
         $ctrl.$onInit = function() {
             $ctrl.init();
-            // $ctrl.fetchLocationData()
-            // .then($ctrl.process);
         };
         $ctrl.startLongPolling = $interval(function() {
-            $ctrl.init();
-        }, 180000);
+            $ctrl.fetchLocationData()
+            .then(function(response) {
+                var locations = response.data.slice(0, 6);
+                locations.forEach(function(location){
+                    $ctrl.updateInfoWindow(location);
+                });
+            });
+        }, 5000);
         $ctrl.endLongPolling = function() {
-            console.log('endLongPolling');
             if (angular.isDefined($ctrl.startLongPolling)) {
-                console.log('angular.isDefined($ctrl.startLongPolling)');
                 $interval.cancel($ctrl.startLongPolling);
                 $ctrl.startLongPolling = undefined;
             }

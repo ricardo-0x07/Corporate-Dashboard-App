@@ -16,5 +16,15 @@ angular
             }));
         });
     };
+    papaPromise.parseWOH = function(file) {
+        return new Promise(function(resolve, reject) {
+            Papa.parse(file, Papa.parse(file, {
+                header: false,
+                download: true,
+                complete: resolve,
+                error: reject
+            }));
+        });
+    };
     return papaPromise;
 }]);

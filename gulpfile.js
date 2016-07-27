@@ -45,7 +45,6 @@ gulp.task('copy', function() {
         progressive: true,
         use: [pngquant()]
     })).pipe(gulp.dest('dist/img')),
-    // gulp.src('src/jasmine/**/*.js').pipe(gulp.dest('./dist/jasmine/')),
     gulp.src('src/assets/data/*.*').pipe(gulp.dest('dist/data/')),
     gulp.src('src/assets/lib/**').pipe(gulp.dest('dist/lib/')),
     gulp.src('src/*.json').pipe(gulp.dest('dist/')),
@@ -69,7 +68,9 @@ gulp.task('styles', function() {
 gulp.task('browserSync', function() {
     browserSync.init({
         notify: false,
-        files: ['./dist/**/*.*'],
+        files: [
+            './dist/**/*.html'
+        ],
         port: 3002,
         server: {
             baseDir: './dist',

@@ -44,7 +44,7 @@
 	  			</tr>
 	  	    </thead>
 	  	    <tbody>
-	  			<tr ng-repeat="issue in $ctrl.issues.slice($ctrl.begin, $ctrl.end) | filter:searchText | orderBy:$ctrl.propertyName:$ctrl.reverse">
+	  			<tr ng-repeat="issue in $ctrl.issues.slice($ctrl.begin, $ctrl.end)| filter:searchText | orderBy:$ctrl.propertyName:$ctrl.reverse  track by issue.id ">
 	  				<td ng-click="$ctrl.sortBy('customer_name')" data-title="Customer">{{issue.customer_name}}</td>
 	  				<td ng-click="$ctrl.sortBy('customer_email')" data-title="Email">{{issue.customer_email}}</td>
 	  				<td ng-click="$ctrl.sortBy('description')" data-title="Description">{{issue.description}}</td>

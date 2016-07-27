@@ -12,51 +12,52 @@ angular.module('core.googleChartCustomertrends')
         $ctrl.chart.type = 'LineChart';
         $ctrl.sortData = function(data) {
             function comp(a, b) {
-                return new Date(a.date).getTime() - new Date(b.date).getTime();
+                return new Date(a[0]).getTime() - new Date(b[0]).getTime();
             }
-
-            return data.sort(comp);
+            var newData = [];
+            newData.push(data[0]);
+            var dataToSort = data.slice(1);
+            var results = newData.concat(dataToSort.sort(comp));
+            return results;
         };
 
         $ctrl.formatData = function(data) {
-            var reformattedArray = data.map(function(obj) { 
-                var newSubArray = [];
-                newSubArray.push(obj.date);
-                newSubArray.push(parseInt(obj.customers));
-                console.log('newSubArray', newSubArray);
-                return newSubArray;
-            });
-            return reformattedArray;
+            var newData = [];
+            newData.push([data[0][4], data[0][1]]);
+            for (var i = 1; i < data.length; i++) {
+                data[i].splice(1, 1, parseInt(data[i][1]));
+                newData.push([data[i][4], data[i][1]]);
+            }
+            return newData;
         };
 
-        $ctrl.setChartData = function(reformattedArray) {
-            $ctrl.chart.data = new $window.google.visualization.DataTable();
-            $ctrl.chart.data.addColumn('string', 'Date');
-            $ctrl.chart.data.addColumn('number', 'Number of Paying Customers');
-            $ctrl.chart.data.addRows(reformattedArray);
+        $ctrl.setChartData = function(data) {
+            $ctrl.chart.data = data;
             $ctrl.chart.options = {
-                title: 'Number of Paying Customers'
+                title: 'Number of Paying Customers',
+                vAxis: {
+                    title: "Number of Paying Customers"
+                },
+                hAxis: {
+                    title: "Dates"
+                }
+
             };
-            console.log('$ctrl.chart.data', $ctrl.chart.data);
         };
 
         $ctrl.processResponse = function(response) {
-            console.log('response', response);
             var data = response.data.slice(0, 60);
-            console.log('data', data);
             return data;
         };
 
         $ctrl.fetchTrendOfReportedIssues = function() {
-            return PapaParse.parse("../../data/trends.csv");
+            return PapaParse.parseWOH("../../data/trends.csv");
         };
-        // $ctrl.fetchTrendOfReportedIssues()
         $ctrl.init = function() {
-            googleChartApiPromise
-            .then($ctrl.fetchTrendOfReportedIssues)
+            $ctrl.fetchTrendOfReportedIssues()
             .then($ctrl.processResponse)
-            .then($ctrl.sortData)
             .then($ctrl.formatData)
+            .then($ctrl.sortData)
             .then($ctrl.setChartData);
         };
         $ctrl.$onInit = function() {
@@ -67,9 +68,7 @@ angular.module('core.googleChartCustomertrends')
             $ctrl.init();
         }, 5000);
         $ctrl.endLongPolling = function() {
-            console.log('endLongPolling');
             if (angular.isDefined($ctrl.startLongPolling)) {
-                console.log('angular.isDefined($ctrl.startLongPolling)');
                 $interval.cancel($ctrl.startLongPolling);
                 $ctrl.startLongPolling = undefined;
             }
