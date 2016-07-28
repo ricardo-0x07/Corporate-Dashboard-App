@@ -29,6 +29,7 @@
 ## Credits
 
 1. The udacity nano degree team provided the guidance and training i required to complete the initial version of this project.
+2. Note: the build process serves data form the following path: /dist/data/*.*.
 
 
 ## License
@@ -59,6 +60,10 @@ SOFTWARE.
 1. The the data presentation in the DOM is only re-rendered if there are changes in the data file. 
 2. Now use stored longitide and latitude mock data to place markers google places text search no longer used.
 3. Impemented more regular polling of mock location data.
+4. Implement feature that re-renders markers if their location data changes.
+5. Implemented feature to update information window in realtime (while open) if the information presented in the infowindow changes.
+6. Use the track by feature of the ng-repeat directive to ensureonly that elements are only re-rendered if the data they present changes in realtime. See details here: http://www.codelord.net/2014/04/15/improving-ng-repeat-performance-with-track-by/
+
 
 # How to set up the build process
 

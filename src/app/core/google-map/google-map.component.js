@@ -58,13 +58,15 @@ angular.module('core.googleMap')
         * @return {promise} for the results of the parsed data
         */
         $ctrl.fetchLocationData = function() {
-            return PapaParse.parse('../../data/locations.csv');            
+            return PapaParse.parse('../../data/locations.csv');
         };
         // Iterates through the array of locations, creates a search object for each location
         $ctrl.process = function(response) {
             // Start off with a promise that always resolves
-            $ctrl.locations = response.data.slice(0, 5);
-            $ctrl.locations.reduce(function(prev, location, index, array) {
+            $ctrl.locations = response.data;
+            console.log('$ctrl.locations', $ctrl.locations);
+            $ctrl.locations.map(function(location) {
+                console.log('location', location);
                 // the search request object
                 $ctrl.currentLocation = location;
                 return Promise.resolve(location)
@@ -113,10 +115,13 @@ angular.module('core.googleMap')
                 placeId: response.id,
                 draggable: true,
                 animation: google.maps.Animation.DROP,
-                formatted_address: response.address
+                formatted_address: response.address,
+                lon: lon,
+                lat: lat,
+                loc: response
                 // icon: placeData.icon
             });
-            marker['infoWindow'] = $ctrl.getInfoWindow(response);
+            marker.infoWindow = $ctrl.getInfoWindow(response);
             // add markers to marker array
             $ctrl.markers.push(marker);
             // app.ViewModel.markers.push(marker);
@@ -164,10 +169,44 @@ angular.module('core.googleMap')
                 '</div>'
             });
         };
+        $ctrl.setInfoWindowContent = function(location) {
+            return '<div>' +
+                  '<div class="panel panel-default">' +
+                    '<div class="panel-heading projectBg">' +
+                      '<h3 class="panel-title">Location: ' + location.address + '</h3>' +
+                    '</div>' +
+                    '<div class="panel-body">' +
+                      '<p class="list-group-item" text="">Number of Employees:  ' + location.number_employees + '</p>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>';
+        };
         $ctrl.updateInfoWindow = function(location) {
-            $ctrl.markers.forEach(function(marker) {
-                if (marker.placeId === location.id) { 
-                    marker.infoWindow = $ctrl.getInfoWindow(location);
+            $ctrl.markers.forEach(function(marker, index) {
+                if (marker.placeId === location.id) {
+                    console.log('marker', marker);
+                    if (marker.loc.number_employees !== location.number_employees || marker.loc.address !== location.address) {
+                        var content = $ctrl.setInfoWindowContent(location);
+                        marker.infoWindow.setContent(content);
+                        marker.loc = location;
+                    }
+                    // The next lines save location data from the search result object to local variables
+                    var lat = parseFloat(location.location_latitude);  // latitude from the place service
+                    var lon = parseFloat(location.location_longitude);  // longitude from the place service
+                    // var latlng2 = new google.maps.LatLng(lat, lon);
+                    console.log('marker.lon', marker.lon);
+                    console.log('lon', lon);
+                    console.log('marker.lat', marker.lat);
+                    console.log('lat', lat);
+                    if (marker.lon !== lon || marker.lat !== lat) {
+                        console.log('index', index);
+                        console.log('$ctrl.markers[index]', $ctrl.markers[index]);
+                        $ctrl.markers[index].setMap(null);
+                        $ctrl.markers[index] = null;
+                        $ctrl.markers.splice(index, 1);
+
+                        $ctrl.createMapMarker(location);
+                    }
                 }
             });
         };
@@ -239,9 +278,10 @@ angular.module('core.googleMap')
         $ctrl.startLongPolling = $interval(function() {
             $ctrl.fetchLocationData()
             .then(function(response) {
-                var locations = response.data.slice(0, 6);
+                var locations = response.data;
                 locations.forEach(function(location){
                     $ctrl.updateInfoWindow(location);
+                    // $ctrl.createMapMarker(location);
                 });
             });
         }, 5000);
