@@ -3,6 +3,7 @@
 
 var GoogleMapsLoader = require('google-maps');
 var ArbitratorConfig = require('../../../assets/js/config');
+var _ = require('lodash');
 
 angular.module('core.googleMap')
 .component('googleMap', {
@@ -63,10 +64,9 @@ angular.module('core.googleMap')
         // Iterates through the array of locations, creates a search object for each location
         $ctrl.process = function(response) {
             // Start off with a promise that always resolves
+            $ctrl.prevLocations = response.data;
             $ctrl.locations = response.data;
-            console.log('$ctrl.locations', $ctrl.locations);
             $ctrl.locations.map(function(location) {
-                console.log('location', location);
                 // the search request object
                 $ctrl.currentLocation = location;
                 return Promise.resolve(location)
@@ -142,10 +142,24 @@ angular.module('core.googleMap')
             });
             // add listener to trigger bounce animation for marker icon after they have been clicked
             marker.addListener('click', $ctrl.toggleBounce);
-        
+
             // this is where the pin actually gets added to the map.
             // bounds.extend() takes in a map location object
             $ctrl.bounds.extend(new google.maps.LatLng(lat, lon));
+
+            // Don't zoom in too far on only one marker
+            // if ($ctrl.bounds.getNorthEast().equals($ctrl.bounds.getSouthWest())) {
+            //     var extendPoint1 = new google.maps.LatLng($ctrl.bounds.getNorthEast().lat() + 0.01, $ctrl.bounds.getNorthEast().lng() + 0.01);
+            //     var extendPoint2 = new google.maps.LatLng($ctrl.bounds.getNorthEast().lat() - 0.01, $ctrl.bounds.getNorthEast().lng() - 0.01);
+            //     $ctrl.bounds.extend(extendPoint1);
+            //     $ctrl.bounds.extend(extendPoint2);
+            // }
+            google.maps.event.addListenerOnce($ctrl.map, 'bounds_changed', function() {
+                if (this.getZoom() > 15) {
+                    this.setZoom(15);
+                }
+            });
+
             // fit the map to the new marker
             $ctrl.map.fitBounds($ctrl.bounds);
            // center the map
@@ -184,7 +198,6 @@ angular.module('core.googleMap')
         $ctrl.updateInfoWindow = function(location) {
             $ctrl.markers.forEach(function(marker, index) {
                 if (marker.placeId === location.id) {
-                    console.log('marker', marker);
                     if (marker.loc.number_employees !== location.number_employees || marker.loc.address !== location.address) {
                         var content = $ctrl.setInfoWindowContent(location);
                         marker.infoWindow.setContent(content);
@@ -193,14 +206,7 @@ angular.module('core.googleMap')
                     // The next lines save location data from the search result object to local variables
                     var lat = parseFloat(location.location_latitude);  // latitude from the place service
                     var lon = parseFloat(location.location_longitude);  // longitude from the place service
-                    // var latlng2 = new google.maps.LatLng(lat, lon);
-                    console.log('marker.lon', marker.lon);
-                    console.log('lon', lon);
-                    console.log('marker.lat', marker.lat);
-                    console.log('lat', lat);
                     if (marker.lon !== lon || marker.lat !== lat) {
-                        console.log('index', index);
-                        console.log('$ctrl.markers[index]', $ctrl.markers[index]);
                         $ctrl.markers[index].setMap(null);
                         $ctrl.markers[index] = null;
                         $ctrl.markers.splice(index, 1);
@@ -279,10 +285,35 @@ angular.module('core.googleMap')
             $ctrl.fetchLocationData()
             .then(function(response) {
                 var locations = response.data;
-                locations.forEach(function(location){
+                var array = $ctrl.prevLocations;
+                // Previous Locations that may need to be updated.
+                var locationsToUpdate = _.intersectionBy(array, locations, 'id');
+
+                var prevLoc = $ctrl.prevLocations;
+                // Previous Locations that need to be removed.
+                var locationsToRemoveX = _.xorBy(prevLoc, locationsToUpdate, 'id');
+                // New Locations for which mew markers are to be created.
+                var newLocations = _.xorBy(locationsToUpdate, locations, 'id');
+                // Check and update locations that need to be updated
+                locationsToUpdate.forEach(function(location) {
                     $ctrl.updateInfoWindow(location);
-                    // $ctrl.createMapMarker(location);
                 });
+                // Remove locations that no longer exists
+                locationsToRemoveX.forEach(function(location) {
+                    $ctrl.markers.forEach(function(marker, index) {
+                        if (marker.placeId === location.id) {
+                            $ctrl.markers[index].setMap(null);
+                            $ctrl.markers[index] = null;
+                            $ctrl.markers.splice(index, 1);
+                        }
+                    });
+                });
+                // Create new markers for new locations.
+                newLocations.forEach(function(location) {
+                    $ctrl.createMapMarker(location);
+                });
+                // Store data for previous locations.
+                $ctrl.prevLocations = response.data;
             });
         }, 5000);
         $ctrl.endLongPolling = function() {
